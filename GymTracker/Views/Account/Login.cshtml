@@ -1,35 +1,124 @@
 ﻿@model GymTracker.ViewModels.LoginViewModel
-<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
-                    <h2 class="text-center mb-4">Welcome to GymTracker</h2>
 
-                    <form method="post">
-                        <div class="mb-3">
-                            <label class="form-label">Email address</label>
-                            <input asp-for="Email" type="email" class="form-control" placeholder="name@example.com">
-                            <span asp-validation-for="Email" class="text-danger"></span>
+@{
+    
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   
+    <title>Log In - GymTracker</title>
+  
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body {
+           
+            background: linear-gradient(rgba(10, 10, 10, 0.75), rgba(0, 0, 0, 0.9)), url('https://images.unsplash.com/photo-1571902943202-507ec2618e8f?q=80&w=1075&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center fixed;
+            background-size: cover;
+           
+            height: 100vh;
+       
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .glass-card {
+            background: rgba(20, 20, 20, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+        }
+
+        .form-control {
+           
+            background-color: rgba(255, 255, 255, 0.05);
+          
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+            .form-control:focus {
+                background-color: rgba(255, 255, 255, 0.1);
+               
+                color: white;
+            
+                border-color: #dc3545; 
+                
+                box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+            }
+
+        .btn-primary {
+            background-color: #dc3545;
+            
+            border-color: #dc3545;
+            
+            letter-spacing: 1px;
+        }
+
+            .btn-primary:hover {
+               
+                background-color: #b02a37;
+                
+                border-color: #a52834;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+           
+            <div class="col-md-5 col-lg-4">
+                <div class="card glass-card shadow-lg">
+             
+                    <div class="card-body p-5">
+                        <h2 class="text-center mb-4 fw-bold">GYM<span class="text-danger">TRACKER</span></h2>
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 fw-bold"></div>
+
+                        <form method="post">
+                            <div class="mb-3">
+                          
+                                <label class="form-label text-light small fw-bold">EMAIL</label>
+                          
+                                <input asp-for="Email" type="email" class="form-control" placeholder="name@example.com">
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-4">
+                            
+                                <label class="form-label text-light small fw-bold">PASSWORD</label>
+                            
+                                <input asp-for="Password" type="password" class="form-control" placeholder="Enter password">
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+
+                        
+                            <button type="submit" class="btn btn-primary w-100 mb-3 fw-bold py-2">LOG IN</button>
+                        </form>
+
+                        <div class="text-center border-top border-secondary pt-4 mt-2">
+                        
+                            <p class="mb-2 text-secondary small">Don't have an account?</p>
+                        
+                            <a class="btn btn-outline-light w-100 btn-sm" asp-controller="Account" asp-action="Register">Register a New Account</a>
                         </div>
-
-                        <div class="mb-4">
-                            <label class="form-label">Password</label>
-                            <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password">
-                            <span asp-validation-for="Password" class="text-danger"></span>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100 mb-3">Log In</button>
-                    </form>
-
-                    <div class="text-center border-top pt-3">
-                        <p class="mb-0">Don't have an account?</p>
-                        <a class="btn btn-outline-secondary w-100 mt-2" asp-controller="Account" asp-action="Register">Register a New Account</a>
-
                     </div>
+         
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+   
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>
