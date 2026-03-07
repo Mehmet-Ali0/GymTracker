@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
 using GymTracker.Data;
 using GymTracker.Models;
-using Microsoft.AspNetCore.Identity;
 using GymTracker.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
@@ -282,8 +283,86 @@ namespace GymTracker.Controllers
         }
 
 
+        [HttpGet]
+        public async Task<IActionResult> Stats()
+        {
+           
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Challenge(); // Or RedirectToAction("Login", "Account");
+            }
 
+          
+            var sevenDaysAgo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-7));
+            
+            var volumeData = await _context.SetRecords
+                .Include(sr => sr.WorkoutSession)
+                .Include(sr => sr.Exercise)
+                .Where(sr => sr.WorkoutSession.AppUserId == userId && sr.WorkoutSession.DatePerformed >= sevenDaysAgo)
+                .GroupBy(sr => sr.Exercise.TargetMuscle)
+                .Select(g => new MuscleVolumeItem
+                {
+                    MuscleGroup = g.Key,
+                    TotalSets = g.Count() 
+                })
+                .ToListAsync();
 
+            var availableExercises = await _context.SetRecords
+                .Include(sr => sr.Exercise)
+                .Where(sr => sr.WorkoutSession.AppUserId == userId)
+                .Select(sr => sr.Exercise)
+                .Distinct()
+                .Select(e => new ExerciseDropdownItem
+                {
+                    Id = e.Id,
+                    Name = e.Name
+                })
+                .OrderBy(e => e.Name)
+                .ToListAsync();
+
+           
+            var viewModel = new StatsViewModel
+            {
+                MuscleVolumeData = volumeData,
+                AvailableExercises = availableExercises
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetExerciseProgressData(int exerciseId)
+        {
+            
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                
+                return Unauthorized();
+            }
+
+           
+            var progressData = await _context.SetRecords
+                .Include(sr => sr.WorkoutSession)
+                .Where(sr => sr.WorkoutSession.AppUserId == userId && sr.ExerciseId == exerciseId)
+                
+                .GroupBy(sr => sr.WorkoutSession.DatePerformed)
+               
+                .OrderBy(g => g.Key)
+                .Select(g => new
+                {
+                    
+                    DateString = g.Key.ToString("MMM dd"),
+
+                    
+                    TotalVolume = g.Sum(sr => sr.Weight * sr.Reps)
+                })
+                .ToListAsync();
+
+           
+            return Json(progressData);
+        }
 
 
 
