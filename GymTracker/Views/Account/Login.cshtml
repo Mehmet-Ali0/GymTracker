@@ -1,0 +1,35 @@
+﻿@model GymTracker.ViewModels.LoginViewModel
+<div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">Welcome to GymTracker</h2>
+
+                    <form method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Email address</label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="name@example.com">
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Password</label>
+                            <input asp-for="Password" type="password" class="form-control" placeholder="Enter your password">
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3">Log In</button>
+                    </form>
+
+                    <div class="text-center border-top pt-3">
+                        <p class="mb-0">Don't have an account?</p>
+                        <a class="btn btn-outline-secondary w-100 mt-2" asp-controller="Account" asp-action="Register">Register a New Account</a>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

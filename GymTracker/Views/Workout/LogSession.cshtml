@@ -1,0 +1,65 @@
+﻿@model GymTracker.ViewModels.LogSessionViewModel
+
+<div class="container mt-5">
+    <h2>Logging: @Model.WorkoutName</h2>
+    <hr />
+
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <p>@error.ErrorMessage</p>
+            }
+        </div>
+    }
+
+
+
+    <form asp-action="LogSession" asp-controller="Workout" method="post">
+        <input type="hidden" asp-for="SessionId" />
+        <input type="hidden" asp-for="WorkoutName" />
+        @for (int i = 0; i < Model.Exercises.Count; i++)
+        {
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">@Model.Exercises[i].ExerciseName</h5>
+                    <input type="hidden" asp-for="Exercises[i].ExerciseId" />
+                    <input type="hidden" asp-for="Exercises[i].ExerciseName" /> 
+                    <input type="hidden" asp-for="Exercises[i].TargetSets" />
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%">Set</th>
+                                <th style="width: 45%">Weight (kg)</th>
+                                <th style="width: 45%">Reps</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int j = 0; j < Model.Exercises[i].Sets.Count; j++)
+                            {
+                                <tr>
+                                    <td>@(j + 1)</td>
+                                    <td>
+                                        <input asp-for="Exercises[i].Sets[j].Weight" class="form-control" placeholder="0.0" step="0.5" />
+                                    </td>
+                                    <td>
+                                        <input asp-for="Exercises[i].Sets[j].Reps" class="form-control" placeholder="0" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+        <div class="d-grid gap-2 d-md-block mb-5">
+            <button type="submit" class="btn btn-success btn-lg">Finish & Save Session</button>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-lg">Cancel</a>
+        </div>
+    </form>
+</div>

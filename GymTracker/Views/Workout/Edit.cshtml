@@ -1,0 +1,52 @@
+﻿@model GymTracker.Models.WorkoutTemplate
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Edit Workout: @Model.Name</h2>
+        <a asp-action="Index" class="btn btn-secondary">Back to My Workouts</a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Exercises in this Routine</h5>
+        </div>
+        <div class="card-body">
+            @if (!Model.ExerciseTemplates.Any())
+            {
+                <p class="text-muted">No exercises added yet.</p>
+            }
+            else
+            {
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Exercise</th>
+                            <th>Target Muscle</th>
+                            <th>Target Sets</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var et in Model.ExerciseTemplates.OrderBy(e => e.OrderSequence))
+                        {
+                            <tr>
+                                <td>@et.OrderSequence</td>
+                                <td>@et.Exercise.Name</td>
+                                <td><span class="badge bg-info text-dark">@et.Exercise.TargetMuscle</span></td>
+                                <td>@et.TargetSets</td>
+                                <td>
+                                    <form asp-action="RemoveExercise" asp-route-id="@et.Id" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to remove this exercise?');">Remove</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+
+    <a asp-action="AddExercises" asp-route-id="@Model.Id" class="btn btn-success">+ Add Another Exercise</a>
+</div>
