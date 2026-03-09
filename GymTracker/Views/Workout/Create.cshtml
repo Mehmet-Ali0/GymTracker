@@ -3,20 +3,34 @@
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <h2>Step 1: Name Your Workout</h2>
-            <p class="text-muted">Example: "Monday Push Day" or "Heavy Leg Day"</p>
 
-            <form asp-action="Create" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="card shadow-lg rounded-3" style="background-color: #1e1e1e; border: 1px solid #333;">
+                <div class="card-body p-4 p-md-5">
 
-                <div class="mb-3">
-                    <label asp-for="Name" class="form-label"></label>
-                    <input asp-for="Name" class="form-control" placeholder="Enter name..." />
-                    <span asp-validation-for="Name" class="text-danger"></span>
+                    <h2 class="fw-bold mb-2 text-light">
+                        <span style="color: #d32f2f;">|</span> Step 1: Name Your Workout
+                    </h2>
+                    <p style="color: #a0a0a0; font-size: 0.95rem;">Example: "Push Day" or "Heavy Leg Day"</p>
+
+                    <form asp-action="Create" method="post" class="mt-4">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 fw-bold"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="Name" class="form-label text-light fw-bold"></label>
+                            <input asp-for="Name" class="form-control form-control-lg" placeholder="Enter name..."
+                                   style="background-color: #2a2a2a; color: #ffffff; border: 1px solid #444;" />
+                            <span asp-validation-for="Name" class="text-danger mt-1 d-block fw-bold"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-lg w-100 fw-bold shadow-sm"
+                                style="background-color: #d32f2f; color: white; border: none;">
+                            Continue to Add Exercises
+                        </button>
+                    </form>
+
                 </div>
+            </div>
 
-                <button type="submit" class="btn btn-primary">Continue to Add Exercises</button>
-            </form>
         </div>
     </div>
 </div>
