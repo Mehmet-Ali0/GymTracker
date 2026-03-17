@@ -1,42 +1,97 @@
 ﻿@model GymTracker.Models.WorkoutTemplate
 
+<style>
+    
+    body {
+        background-color: #121212 !important;
+        color: #e0e0e0 !important;
+    }
+
+    
+    .gym-card {
+        background-color: #1e1e1e;
+        border: 1px solid #2a2a2a;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .btn-gym-red {
+        background-color: #d32f2f;
+        color: white;
+        border: none;
+        font-weight: 600;
+        transition: background-color 0.2s;
+    }
+
+        .btn-gym-red:hover {
+            background-color: #b71c1c;
+            color: white;
+        }
+
+    .text-gym-red {
+        color: #d32f2f !important;
+    }
+
+    .dark-alert {
+        background-color: #1e1e1e;
+        border: none;
+        border-left: 4px solid #d32f2f;
+        color: #e0e0e0;
+    }
+
+    .border-dark-custom {
+        border-color: #333 !important;
+    }
+
+    
+    .table-dark-gym {
+        color: #e0e0e0;
+        border-color: #333;
+    }
+</style>
+
 <div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Edit Workout: @Model.Name</h2>
-        <a asp-action="Index" class="btn btn-secondary">Back to My Workouts</a>
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-dark-custom pb-3">
+        <h2 class="fw-bold mb-0">
+            <span class="text-gym-red">|</span> Edit Workout: @Model.Name
+        </h2>
+        <a asp-action="Index" class="btn btn-outline-light fw-bold">Back to My Workouts</a>
     </div>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Exercises in this Routine</h5>
+    <div class="card gym-card shadow-sm mb-4 text-light rounded-3">
+        <div class="card-header border-bottom border-dark-custom pb-3 pt-3" style="background-color: transparent;">
+            <h5 class="mb-0 fw-bold text-uppercase tracking-wide">
+                <span class="text-gym-red">|</span> Exercises in this Routine
+            </h5>
         </div>
         <div class="card-body">
             @if (!Model.ExerciseTemplates.Any())
             {
-                <p class="text-muted">No exercises added yet.</p>
+                <div class="alert dark-alert shadow-sm">
+                    <i class="text-gym-red fw-bold">Alert:</i> No exercises added yet. Click the button below to add some.
+                </div>
             }
             else
             {
-                <table class="table table-hover align-middle">
+                <table class="table table-dark table-hover align-middle table-dark-gym mb-0" style="background-color: transparent;">
                     <thead>
-                        <tr>
-                            <th>Order</th>
-                            <th>Exercise</th>
-                            <th>Target Muscle</th>
-                            <th>Target Sets</th>
-                            <th>Actions</th>
+                        <tr class="border-bottom border-dark-custom">
+                            <th class="text-muted border-0">Order</th>
+                            <th class="text-muted border-0">Exercise</th>
+                            <th class="text-muted border-0">Target Muscle</th>
+                            <th class="text-muted border-0">Target Sets</th>
+                            <th class="text-muted border-0">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var et in Model.ExerciseTemplates.OrderBy(e => e.OrderSequence))
                         {
-                            <tr>
-                                <td>@et.OrderSequence</td>
-                                <td>@et.Exercise.Name</td>
-                                <td><span class="badge bg-info text-dark">@et.Exercise.TargetMuscle</span></td>
-                                <td>@et.TargetSets</td>
-                                <td>
-                                    <form asp-action="RemoveExercise" asp-route-id="@et.Id" method="post" style="display:inline;">
+                            <tr class="border-bottom border-dark-custom">
+                                <td class="border-0">@et.OrderSequence</td>
+                                <td class="border-0 fw-bold">@et.Exercise.Name</td>
+                                <td class="border-0"><span class="badge bg-dark border border-secondary text-light">@et.Exercise.TargetMuscle</span></td>
+                                <td class="border-0">@et.TargetSets</td>
+                                <td class="border-0">
+                                    <form asp-action="RemoveExercise" asp-route-id="@et.Id" method="post" class="m-0" style="display:inline;">
                                         <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to remove this exercise?');">Remove</button>
                                     </form>
                                 </td>
@@ -48,5 +103,7 @@
         </div>
     </div>
 
-    <a asp-action="AddExercises" asp-route-id="@Model.Id" class="btn btn-success">+ Add Another Exercise</a>
+    <div class="mt-4 pb-5">
+        <a asp-action="AddExercises" asp-route-id="@Model.Id" class="btn btn-gym-red shadow-sm">+ Add Another Exercise</a>
+    </div>
 </div>
