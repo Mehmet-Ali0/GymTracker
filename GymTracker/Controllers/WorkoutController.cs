@@ -366,6 +366,27 @@ namespace GymTracker.Controllers
 
 
 
+        [HttpGet]
+        public async Task<IActionResult> FinishWorkoutCreation(int id)
+        {
+          
+            var exerciseCount = await _context.ExerciseTemplates
+                .CountAsync(et => et.WorkoutTemplateID == id);
+
+            if (exerciseCount == 0)
+            {
+                
+                TempData["ErrorMessage"] = "You must add at least one exercise before finishing your workout.";
+
+               
+                return RedirectToAction("AddExercises", new { id = id });
+            }
+
+            
+            return RedirectToAction("Index");
+        }
+
+
 
 
 
