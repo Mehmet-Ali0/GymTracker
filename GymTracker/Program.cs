@@ -1,5 +1,4 @@
 // TODO: Workout Deletion DONE
-// What happens to workout stats when workouts deleted,
 // 7 day stat pull issue
 // Archive option for workouts
 

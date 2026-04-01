@@ -286,25 +286,32 @@ namespace GymTracker.Controllers
         [HttpGet]
         public async Task<IActionResult> Stats()
         {
-           
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userId))
             {
-                return Challenge(); // Or RedirectToAction("Login", "Account");
+                return Challenge();
             }
 
-          
-            var sevenDaysAgo = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-7));
             
+            var today = DateTime.UtcNow;
+
+            
+            int daysSinceMonday = today.DayOfWeek == DayOfWeek.Sunday ? 6 : (int)today.DayOfWeek - 1;
+
+            
+            var startOfWeek = DateOnly.FromDateTime(today.AddDays(-daysSinceMonday));
+           
+
             var volumeData = await _context.SetRecords
                 .Include(sr => sr.WorkoutSession)
                 .Include(sr => sr.Exercise)
-                .Where(sr => sr.WorkoutSession.AppUserId == userId && sr.WorkoutSession.DatePerformed >= sevenDaysAgo)
+                // Changed the query to use startOfWeek instead of sevenDaysAgo
+                .Where(sr => sr.WorkoutSession.AppUserId == userId && sr.WorkoutSession.DatePerformed >= startOfWeek)
                 .GroupBy(sr => sr.Exercise.TargetMuscle)
                 .Select(g => new MuscleVolumeItem
                 {
                     MuscleGroup = g.Key,
-                    TotalSets = g.Count() 
+                    TotalSets = g.Count()
                 })
                 .ToListAsync();
 
@@ -321,7 +328,6 @@ namespace GymTracker.Controllers
                 .OrderBy(e => e.Name)
                 .ToListAsync();
 
-           
             var viewModel = new StatsViewModel
             {
                 MuscleVolumeData = volumeData,
