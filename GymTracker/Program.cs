@@ -1,8 +1,7 @@
-// TODO: Planned the database Structure, Planned how it interacts, Created Models,
-// TODO: Migrated the tables, Created the database structure, Created the Login and Register Pages, Started Working on Create New Workout methods and views 
-// TODO: Implemented Create Edit Remove Add exercises methods. Implemented Sessions and SetRecords. Need to add a Stats for users
-
-
+// TODO: Workout Deletion DONE
+// What happens to workout stats when workouts deleted,
+// 7 day stat pull issue
+// Archive option for workouts
 
 using GymTracker.Data;
 using GymTracker.Models;

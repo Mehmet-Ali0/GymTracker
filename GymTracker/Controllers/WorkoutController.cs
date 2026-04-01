@@ -386,7 +386,44 @@ namespace GymTracker.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
 
+          
+            var workoutTemplate = await _context.WorkoutTemplates
+                .Include(wt => wt.ExerciseTemplates)
+                .Include(wt => wt.WorkoutSessions)
+                    .ThenInclude(ws => ws.SetRecords) // Get the stats too!
+                .FirstOrDefaultAsync(wt => wt.Id == id && wt.AppUserId == user.Id);
+
+            
+            if (workoutTemplate == null)
+            {
+                return NotFound();
+            }
+
+            
+            foreach (var session in workoutTemplate.WorkoutSessions)
+            {
+                _context.SetRecords.RemoveRange(session.SetRecords);
+            }
+
+            
+            _context.WorkoutSessions.RemoveRange(workoutTemplate.WorkoutSessions);
+
+            
+            _context.ExerciseTemplates.RemoveRange(workoutTemplate.ExerciseTemplates);
+
+            
+            _context.WorkoutTemplates.Remove(workoutTemplate);
+
+           
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
 
 
 

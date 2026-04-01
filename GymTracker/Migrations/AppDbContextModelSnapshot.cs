@@ -105,7 +105,7 @@ namespace GymTracker.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("exercises");
+                    b.ToTable("exercises", (string)null);
 
                     b.HasData(
                         new
@@ -226,7 +226,7 @@ namespace GymTracker.Migrations
 
                     b.HasIndex("WorkoutTemplateID");
 
-                    b.ToTable("ExerciseTemplates");
+                    b.ToTable("ExerciseTemplates", (string)null);
                 });
 
             modelBuilder.Entity("GymTracker.Models.SetRecord", b =>
@@ -258,7 +258,7 @@ namespace GymTracker.Migrations
 
                     b.HasIndex("WorkoutSessionId");
 
-                    b.ToTable("SetRecords");
+                    b.ToTable("SetRecords", (string)null);
                 });
 
             modelBuilder.Entity("GymTracker.Models.WorkoutSession", b =>
@@ -285,7 +285,7 @@ namespace GymTracker.Migrations
 
                     b.HasIndex("WorkoutTemplateId");
 
-                    b.ToTable("WorkoutSessions");
+                    b.ToTable("WorkoutSessions", (string)null);
                 });
 
             modelBuilder.Entity("GymTracker.Models.WorkoutTemplate", b =>
@@ -308,7 +308,7 @@ namespace GymTracker.Migrations
 
                     b.HasIndex("AppUserId");
 
-                    b.ToTable("WorkoutTemplates");
+                    b.ToTable("WorkoutTemplates", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
