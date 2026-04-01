@@ -12,6 +12,8 @@ namespace GymTracker.Models
         [Required]
         public string Name { get; set; }
 
+        public bool IsArchived { get; set; } = false;
+
         //Connection
         [Required]
         public string AppUserId { get; set; }

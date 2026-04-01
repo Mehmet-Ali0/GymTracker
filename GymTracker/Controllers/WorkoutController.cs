@@ -33,15 +33,57 @@ namespace GymTracker.Controllers
 
             
             var myWorkouts = await _context.WorkoutTemplates
-                .Where(w => w.AppUserId == user.Id)
+                .Where(w => w.AppUserId == user.Id && !w.IsArchived)
                 .ToListAsync();
 
             
             return View(myWorkouts);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Archived()
+        {
+            var user = await _userManager.GetUserAsync(User);
 
-        
+            
+            var archivedWorkouts = await _context.WorkoutTemplates
+                .Where(w => w.AppUserId == user.Id && w.IsArchived)
+                .ToListAsync();
+
+            return View(archivedWorkouts);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Archive(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var workout = await _context.WorkoutTemplates.FirstOrDefaultAsync(w => w.Id == id && w.AppUserId == user.Id);
+
+            if (workout != null)
+            {
+                workout.IsArchived = true;
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Index"); 
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Unarchive(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var workout = await _context.WorkoutTemplates.FirstOrDefaultAsync(w => w.Id == id && w.AppUserId == user.Id);
+
+            if (workout != null)
+            {
+                workout.IsArchived = false;
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Archived"); 
+        }
+
+
         [HttpGet]
         public IActionResult Create()
         {

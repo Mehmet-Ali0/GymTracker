@@ -1,0 +1,81 @@
+﻿@model IEnumerable<GymTracker.Models.WorkoutTemplate>
+
+<style>
+    body {
+        background-color: #121212 !important;
+        color: #e0e0e0 !important;
+    }
+
+    .gym-card {
+        background-color: #1e1e1e;
+        border: 1px solid #2a2a2a;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+        .gym-card:hover {
+            transform: translateY(-4px);
+            border-color: #555; /* Subtle grey hover for archived items */
+            box-shadow: 0 8px 15px rgba(255, 255, 255, 0.05) !important;
+        }
+
+    .dark-alert {
+        background-color: #1e1e1e;
+        border: none;
+        border-left: 4px solid #6c757d;
+        color: #e0e0e0;
+    }
+
+    .border-dark-custom {
+        border-color: #333 !important;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-dark-custom pb-3">
+        <h2 class="fw-bold mb-0 text-secondary">
+            <span class="text-secondary">|</span> Archived Workouts
+        </h2>
+        <div>
+            <a asp-action="Index" class="btn btn-outline-light me-2 fw-bold">Back to Active Workouts</a>
+        </div>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert dark-alert shadow-sm">
+            <i class="text-secondary fw-bold">Info:</i> You don't have any archived workouts.
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var workout in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card gym-card shadow-sm h-100 text-light rounded-3" style="opacity: 0.75;">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold text-uppercase tracking-wide mb-1">@workout.Name</h5>
+                            
+                            <p class="text-secondary small mb-4">Template ID: @workout.Id</p>
+
+                            <div class="mt-auto pt-3 border-top border-dark-custom d-flex justify-content-end align-items-center">
+                                <div class="d-flex align-items-center gap-2">
+                                    
+                                    <form asp-action="Unarchive" asp-route-id="@workout.Id" method="post" class="m-0">
+                                        <button type="submit" class="btn btn-outline-success btn-sm fw-bold">Unarchive</button>
+                                    </form>
+
+                                    <form asp-action="Delete" asp-route-id="@workout.Id" method="post" class="m-0"
+                                          onsubmit="return confirm('Are you sure you want to completely delete this archived workout and ALL of its history? This cannot be undone.');">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

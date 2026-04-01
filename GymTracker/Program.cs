@@ -1,6 +1,6 @@
 // TODO: Workout Deletion DONE
-// 7 day stat pull issue
-// Archive option for workouts
+// 7 day stat pull issue DONE
+// Archive option for workouts 
 
 using GymTracker.Data;
 using GymTracker.Models;
