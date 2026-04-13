@@ -18,6 +18,7 @@
 
     public class SetEntryViewModel
     {
+        public int? SetRecordId { get; set; }
         public double? Weight { get; set; }
         public int? Reps { get; set; }
     }

@@ -1,0 +1,156 @@
+﻿@model GymTracker.ViewModels.HistoryCalendarViewModel
+
+@{
+    ViewData["Title"] = "Workout History";
+    
+    // Calculate the Previous and Next months so our buttons work
+    int prevMonth = Model.Month == 1 ? 12 : Model.Month - 1;
+    int prevYear = Model.Month == 1 ? Model.Year - 1 : Model.Year;
+    int nextMonth = Model.Month == 12 ? 1 : Model.Month + 1;
+    int nextYear = Model.Month == 12 ? Model.Year + 1 : Model.Year;
+}
+
+<style>
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 10px;
+    }
+    .calendar-header {
+        text-align: center;
+        font-weight: bold;
+        padding: 10px 0;
+        background-color: #1e1e1e;
+        border-radius: 5px;
+    }
+    .calendar-day {
+        background-color: #2a2a2a;
+        border-radius: 5px;
+        min-height: 100px;
+        padding: 10px;
+        cursor: pointer;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+    .calendar-day:hover {
+        transform: scale(1.02);
+        background-color: #3a3a3a;
+    }
+    .calendar-day.empty {
+        background-color: transparent;
+        cursor: default;
+    }
+    .calendar-day.empty:hover {
+        transform: none;
+    }
+    .day-number {
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+    }
+    .workout-badge {
+        font-size: 0.8rem;
+        display: block;
+        margin-bottom: 3px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a asp-action="History" asp-route-year="@prevYear" asp-route-month="@prevMonth" class="btn btn-outline-light">&laquo; Previous</a>
+        <h2>@Model.MonthName @Model.Year</h2>
+        <a asp-action="History" asp-route-year="@nextYear" asp-route-month="@nextMonth" class="btn btn-outline-light">Next &raquo;</a>
+    </div>
+
+    <div class="calendar-grid mb-2">
+        <div class="calendar-header">Sun</div>
+        <div class="calendar-header">Mon</div>
+        <div class="calendar-header">Tue</div>
+        <div class="calendar-header">Wed</div>
+        <div class="calendar-header">Thu</div>
+        <div class="calendar-header">Fri</div>
+        <div class="calendar-header">Sat</div>
+    </div>
+
+    <div class="calendar-grid">
+        
+        @for (int i = 0; i < Model.StartDayOfWeek; i++)
+        {
+            <div class="calendar-day empty"></div>
+        }
+
+        
+        @for (int day = 1; day <= Model.DaysInMonth; day++)
+        {
+            var workoutsToday = Model.WorkoutsByDay[day];
+            
+            <div class="calendar-day" onclick="openModal(@day)">
+                <div class="day-number">@day</div>
+                
+            
+                @if (workoutsToday.Any())
+                {
+                    foreach (var workout in workoutsToday)
+                    {
+                        <span class="badge bg-danger workout-badge">@workout.WorkoutTemplate.Name</span>
+                    }
+                }
+
+                
+                <div id="workouts-data-@day" style="display: none;">
+                    @if (workoutsToday.Any())
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var workout in workoutsToday)
+                            {
+                                <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center border-secondary">
+                                    <span>@workout.WorkoutTemplate.Name</span>
+                                    <a asp-action="EditSession" asp-route-id="@workout.Id" class="btn btn-sm btn-primary">Edit / Fix Mistakes</a>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center mt-3">Rest day! No workouts logged.</p>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="modal fade" id="dailyWorkoutModal" tabindex="-1" aria-labelledby="dailyWorkoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title" id="dailyWorkoutModalLabel">Workouts on <span id="modalDateSpan"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalBodyContent">
+                </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openModal(day) {
+         
+            document.getElementById('modalDateSpan').innerText = '@Model.MonthName ' + day + ', @Model.Year';
+            
+            
+            var hiddenData = document.getElementById('workouts-data-' + day).innerHTML;
+            document.getElementById('modalBodyContent').innerHTML = hiddenData;
+            
+            
+            var myModal = new bootstrap.Modal(document.getElementById('dailyWorkoutModal'));
+            myModal.show();
+        }
+    </script>
+}

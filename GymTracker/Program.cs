@@ -2,6 +2,9 @@
 // 7 day stat pull issue DONE
 // Archive option for workouts DONE
 // Automatic Refill DONE
+// PWA maybe apk?
+
+
 
 using GymTracker.Data;
 using GymTracker.Models;

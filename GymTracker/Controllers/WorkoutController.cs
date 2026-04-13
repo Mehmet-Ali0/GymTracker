@@ -200,7 +200,7 @@ namespace GymTracker.Controllers
         [HttpPost]
         public async Task<IActionResult> RemoveExercise(int id)
         {
-           
+        
             var exerciseToRemove = await _context.ExerciseTemplates.FindAsync(id);
 
             if (exerciseToRemove == null)
@@ -498,6 +498,145 @@ namespace GymTracker.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> History(int? year, int? month)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            // 1. Default to the current year and month if the user just clicked the nav link
+            int targetYear = year ?? DateTime.Now.Year;
+            int targetMonth = month ?? DateTime.Now.Month;
+
+            // 2. Figure out the first and last day of the month using DateOnly
+            var startDate = new DateOnly(targetYear, targetMonth, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+
+            // 3. Fetch ONLY the workouts that happened in this specific month
+            var monthlyWorkouts = await _context.WorkoutSessions
+                .Include(s => s.WorkoutTemplate)
+                .Where(s => s.AppUserId == user.Id
+                         && s.DatePerformed >= startDate
+                         && s.DatePerformed <= endDate)
+                .ToListAsync();
+
+            // 4. Create an empty dictionary and fill it with the days of the month
+            var workoutsByDay = new Dictionary<int, List<WorkoutSession>>();
+            int daysInMonth = DateTime.DaysInMonth(targetYear, targetMonth);
+
+            for (int day = 1; day <= daysInMonth; day++)
+            {
+                // Find any workouts that match this specific day, or leave the list empty
+                workoutsByDay[day] = monthlyWorkouts.Where(w => w.DatePerformed.Day == day).ToList();
+            }
+
+            // 5. Build the ViewModel
+            var viewModel = new HistoryCalendarViewModel
+            {
+                Year = targetYear,
+                Month = targetMonth,
+                MonthName = new DateTime(targetYear, targetMonth, 1).ToString("MMMM"),
+                DaysInMonth = daysInMonth,
+
+                
+                StartDayOfWeek = (int)new DateTime(targetYear, targetMonth, 1).DayOfWeek,
+
+                WorkoutsByDay = workoutsByDay
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditSession(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            // Fetch the session WITH its actual saved sets
+            var session = await _context.WorkoutSessions
+                .Include(s => s.WorkoutTemplate)
+                    .ThenInclude(wt => wt.ExerciseTemplates)
+                        .ThenInclude(et => et.Exercise)
+                .Include(s => s.SetRecords)
+                .FirstOrDefaultAsync(s => s.Id == id && s.AppUserId == user.Id);
+
+            if (session == null) return NotFound();
+
+            var viewModel = new LogSessionViewModel
+            {
+                SessionId = session.Id,
+                WorkoutName = session.WorkoutTemplate.Name,
+                Exercises = session.WorkoutTemplate.ExerciseTemplates
+                    .OrderBy(et => et.OrderSequence)
+                    .Select(et => new ExerciseLogViewModel
+                    {
+                        ExerciseId = et.ExerciseID,
+                        ExerciseName = et.Exercise.Name,
+                        TargetSets = et.TargetSets,
+                        Sets = Enumerable.Range(1, et.TargetSets).Select(setNum =>
+                        {
+                            // Find the exact set they already logged
+                            var existingSet = session.SetRecords
+                                .FirstOrDefault(sr => sr.ExerciseId == et.ExerciseID && sr.SetNumber == setNum);
+
+                            return new SetEntryViewModel
+                            {
+                                SetRecordId = existingSet?.Id, // Store the PK for the edit post
+                                Weight = existingSet?.Weight,
+                                Reps = existingSet?.Reps
+                            };
+                        }).ToList()
+                    }).ToList()
+            };
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditSession(LogSessionViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            // Fetch the existing session from the DB
+            var session = await _context.WorkoutSessions
+                .Include(s => s.SetRecords)
+                .FirstOrDefaultAsync(s => s.Id == model.SessionId);
+
+            if (session == null) return NotFound();
+
+            foreach (var exercise in model.Exercises)
+            {
+                for (int i = 0; i < exercise.Sets.Count; i++)
+                {
+                    var setEntry = exercise.Sets[i];
+
+                    // If the SetRecordId exists, we UPDATE the existing row
+                    if (setEntry.SetRecordId.HasValue && setEntry.SetRecordId.Value > 0)
+                    {
+                        var existingRecord = session.SetRecords.FirstOrDefault(sr => sr.Id == setEntry.SetRecordId.Value);
+                        if (existingRecord != null)
+                        {
+                            existingRecord.Weight = setEntry.Weight ?? 0;
+                            existingRecord.Reps = setEntry.Reps ?? 0;
+                        }
+                    }
+                    // If they skipped a set last time but filled it out NOW, we INSERT a new row
+                    else if (setEntry.Weight.HasValue || setEntry.Reps.HasValue)
+                    {
+                        _context.SetRecords.Add(new SetRecord
+                        {
+                            WorkoutSessionId = model.SessionId,
+                            ExerciseId = exercise.ExerciseId,
+                            SetNumber = i + 1,
+                            Weight = setEntry.Weight ?? 0,
+                            Reps = setEntry.Reps ?? 0
+                        });
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction("History");
+        }
 
 
     }
