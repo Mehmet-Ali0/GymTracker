@@ -251,6 +251,15 @@ namespace GymTracker.Controllers
 
             if (session == null) return NotFound();
 
+           
+            var previousSession = await _context.WorkoutSessions
+                .Include(s => s.SetRecords)
+                .Where(s => s.AppUserId == session.AppUserId
+                         && s.WorkoutTemplateId == session.WorkoutTemplateId
+                         && s.Id < session.Id)
+                .OrderByDescending(s => s.Id)
+                .FirstOrDefaultAsync();
+
             
             var viewModel = new LogSessionViewModel
             {
@@ -263,9 +272,25 @@ namespace GymTracker.Controllers
                         ExerciseId = et.ExerciseID,
                         ExerciseName = et.Exercise.Name,
                         TargetSets = et.TargetSets,
-                       
-                        Sets = Enumerable.Range(1, et.TargetSets)
-                            .Select(_ => new SetEntryViewModel()).ToList()
+                        Sets = Enumerable.Range(1, et.TargetSets).Select(setNum =>
+                        {
+                            var entry = new SetEntryViewModel();
+
+                            
+                            if (previousSession != null)
+                            {
+                                var previousSet = previousSession.SetRecords
+                                    .FirstOrDefault(sr => sr.ExerciseId == et.ExerciseID && sr.SetNumber == setNum);
+
+                                if (previousSet != null)
+                                {
+                                   
+                                    entry.Weight = previousSet.Weight;
+                                    entry.Reps = previousSet.Reps;
+                                }
+                            }
+                            return entry;
+                        }).ToList()
                     }).ToList()
             };
 
